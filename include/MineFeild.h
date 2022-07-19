@@ -24,7 +24,7 @@ private:
         bool IsRevealed() const;
         bool IsFlag() const;
         void CountNeightborBoom();
-        bool IsNoNeightborBoom() const;
+        bool IsNoBoomNeightbor() const;
         void Draw(const Vec2& screenPos) const;
     private:
         State state = State::Hidden;
@@ -34,14 +34,17 @@ private:
 
 public:
     MineField();
-    Tile& TileAt( const Vec2& gridPos );
     void DoRevealedClick( const Vec2& gridPos );
     void DoFlagClick( const Vec2& gridPos );
     Vec2 ScreenToGrid( const Vec2& screenPos );
-    void Sweeper(const Vec2& gridPos);
     bool FuckUp();
     bool Done();
     void Draw();
+private:
+    void Sweeper(const Vec2& gridPos_in);
+    bool NoNeightborBoom(const Vec2& gridPos);
+    Tile& TileAt( const Vec2& gridPos );
+    // const Tile& TileAt( const Vec2& gridPos ) const;
 private:
     static constexpr int width = 6;
     static constexpr int height = 6;

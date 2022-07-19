@@ -19,7 +19,7 @@ MineField::MineField()
         TileAt( gridPos ).SetIsBoom();
     }
 }
-void MineField::Sweeper(const Vec2& gridPos) 
+bool MineField::NoNeightborBoom(const Vec2& gridPos)
 {
     const int xStart = std::max( 0, gridPos.x - 1 );
     const int yStart = std::max( 0, gridPos.y - 1 );
@@ -38,6 +38,29 @@ void MineField::Sweeper(const Vec2& gridPos)
             }
         }
     }
+
+    tile.SetIsRevealed();
+    nRevealed++;
+
+    return tile.IsNoBoomNeightbor();
+}
+void MineField::Sweeper(const Vec2& gridPos_in) 
+{
+    const int xStart = std::max( 0, gridPos_in.x - 1 );
+    const int yStart = std::max( 0, gridPos_in.y - 1 );
+    const int xEnd = std::min( width - 1, gridPos_in.x + 1 );
+    const int yEnd = std::min( height - 1, gridPos_in.y + 1 );
+
+    for(Vec2 gridPos{xStart, yStart}; gridPos.y <= yEnd; gridPos.y++)
+    {
+        for(gridPos.x = xStart; gridPos.x <= xEnd; gridPos.x++)
+        {
+            if(!TileAt( gridPos ).IsRevealed())
+            {
+                if(NoNeightborBoom( gridPos )) Sweeper( gridPos );
+            }
+        }
+    }
 }
 void MineField::DoRevealedClick( const Vec2& gridPos )
 {
@@ -51,10 +74,8 @@ void MineField::DoRevealedClick( const Vec2& gridPos )
             {
                 isFuckUp = true;
             }
-            else
+            else if (NoNeightborBoom( gridPos ))
             {
-                tile.SetIsRevealed();
-                nRevealed++;
                 Sweeper( gridPos );
             }
         }
@@ -169,13 +190,13 @@ bool MineField::Tile::HasBoom() const
 {
     return hasBoom;
 }
+bool MineField::Tile::IsNoBoomNeightbor() const
+{
+    return count == 0;
+}
 void MineField::Tile::CountNeightborBoom()
 {
     ++count;
-}
-bool MineField::Tile::IsNoNeightborBoom() const
-{
-    return count == 0;
 }
 void MineField::Tile::Draw(const Vec2& screenPos) const
 {
