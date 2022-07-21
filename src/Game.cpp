@@ -14,6 +14,7 @@ Game::Game(int width, int height, int fps, std::string title)
 }
 Game::~Game() noexcept
 {
+    DestroyFeild();
     assert(GetWindowHandle());
     CloseWindow();
 }
@@ -100,7 +101,6 @@ void Game::CreateFeild(const int width, const int height, const int nBooms)
 }
 void Game::DestroyFeild()
 {
-    pField->FreeResource();
     delete pField;
     pField = nullptr;
 }

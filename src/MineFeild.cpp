@@ -24,8 +24,9 @@ MineField::MineField(const int width, const int height, const int nBooms)
         TileAt( gridPos ).SetIsBoom();
     }
 }
-void MineField::FreeResource()
+MineField::~MineField()
 {
+    std::cout << "destroy" << std::endl;
     delete [] pTile;
     pTile = nullptr;
 }

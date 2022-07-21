@@ -34,13 +34,13 @@ private:
 
 public:
     MineField(const int width, const int height, const int nBooms);
+    ~MineField();
     void DoRevealedClick( const Vec2& gridPos );
     void DoFlagClick( const Vec2& gridPos );
     Vec2 ScreenToGrid( const Vec2& screenPos );
     bool FuckUp();
     bool Done();
     void Draw();
-    void FreeResource();
 private:
     void Sweeper(const Vec2& gridPos_in);
     bool NoNeightborBoom(const Vec2& gridPos);
