@@ -33,29 +33,29 @@ private:
     };
 
 public:
-    MineField();
+    MineField(const int width, const int height, const int nBooms);
     void DoRevealedClick( const Vec2& gridPos );
     void DoFlagClick( const Vec2& gridPos );
     Vec2 ScreenToGrid( const Vec2& screenPos );
     bool FuckUp();
     bool Done();
     void Draw();
+    void FreeResource();
 private:
     void Sweeper(const Vec2& gridPos_in);
     bool NoNeightborBoom(const Vec2& gridPos);
     Tile& TileAt( const Vec2& gridPos );
-    // const Tile& TileAt( const Vec2& gridPos ) const;
 private:
-    static constexpr int width = 6;
-    static constexpr int height = 6;
-    static constexpr int wTile = 40;
-    static constexpr int widthFeild = width*wTile;
-    static constexpr int heightFeild = height*wTile;
-    static constexpr int wallThick = 10;
-    static constexpr int nBooms = 6;
-    static constexpr Vec2 pos = {settings::screenW / 2 - (widthFeild/2), settings::screenH / 2 - (heightFeild/2)};
+    int width;
+    int height;
+    int nBooms = 6;
+    static constexpr int wTile = 20;
+    int widthFeild = width*wTile;
+    int heightFeild = height*wTile;
+    static constexpr int wallThick = 4;
+    Vec2 pos = {settings::screenW / 2 - (widthFeild/2), settings::screenH / 2 - (heightFeild/2)};
     int nFlagUsed = 0;
     int nRevealed = 0;
     bool isFuckUp = false;
-    Tile tiles[width * height];
+    Tile* pTile = nullptr;
 };

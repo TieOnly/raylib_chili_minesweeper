@@ -3,9 +3,16 @@
 #include "raylib.h"
 #include "MineFeild.h"
 #include "Settings.h"
+#include "SelectMenu.h"
 
 class Game
 {
+private:
+    enum class State
+    {
+        Menu,
+        Game
+    };
 public:
     Game(int width, int height, int fps, std::string title);
     ~Game() noexcept;
@@ -18,8 +25,14 @@ private:
     void Draw();
     void DrawTextCenter(const char* title, int fontSize);
 
+    void CreateFeild(const int width, const int height, const int nBooms);
+    void DestroyFeild();
+
     bool IsGameOver = false;
     bool IsWin = false;
 
-    MineField mineFeild;
+    State state = State::Menu;
+
+    MineField* pField = nullptr;
+    SelectMenu menu;
 };

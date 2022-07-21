@@ -2,7 +2,12 @@
 #include <assert.h>
 #include <random>
 #include <iostream>
-MineField::MineField()
+MineField::MineField(const int width, const int height, const int nBooms)
+    :
+    width( width ),
+    height( height ),
+    nBooms( nBooms ),
+    pTile( new Tile[width * height] )
 {
     std::random_device rd;
     std::mt19937 rng( rd() );
@@ -18,6 +23,11 @@ MineField::MineField()
 
         TileAt( gridPos ).SetIsBoom();
     }
+}
+void MineField::FreeResource()
+{
+    delete [] pTile;
+    pTile = nullptr;
 }
 bool MineField::NoNeightborBoom(const Vec2& gridPos)
 {
@@ -156,7 +166,7 @@ void MineField::Draw()
 }
 MineField::Tile& MineField::TileAt( const Vec2& gridPos )
 {
-    return tiles[gridPos.y * width + gridPos.x];
+    return pTile[gridPos.y * width + gridPos.x];
 }
 
 void MineField::Tile::SetIsBoom()

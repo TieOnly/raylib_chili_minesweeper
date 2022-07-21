@@ -2,11 +2,11 @@
 #include "Game.h"
 #include "raylib.h"
 // #include <iostream>
-// std::cout << mineFeild.TileAt(mouseGridpos).IsFlag() << std::endl;
+// std::cout << pField->TileAt(mouseGridpos).IsFlag() << std::endl;
 
 Game::Game(int width, int height, int fps, std::string title)
     :
-    mineFeild()
+    menu({settings::screenW / 2, 100})
 {
     assert(!GetWindowHandle());
     InitWindow(width, height, title.c_str());
@@ -30,40 +30,98 @@ void Game::Tick()
 }
 void Game::Update()
 {
-    if(!IsGameOver && !IsWin)
+    if(state == State::Game)
     {
-        if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+        if(!IsGameOver && !IsWin)
         {
-            Vec2 mouseGridpos = mineFeild.ScreenToGrid( {GetMouseX(), GetMouseY()} );
-            mineFeild.DoRevealedClick( mouseGridpos );
-            if(mineFeild.FuckUp())
+            if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
             {
-                IsGameOver = true;
+                Vec2 mouseGridpos = pField->ScreenToGrid( {GetMouseX(), GetMouseY()} );
+                pField->DoRevealedClick( mouseGridpos );
+                if(pField->FuckUp())
+                {
+                    IsGameOver = true;
+                }
+            }
+            else if(IsMouseButtonPressed(MOUSE_BUTTON_RIGHT))
+            {
+                Vec2 mouseGridpos = pField->ScreenToGrid( {GetMouseX(), GetMouseY()} );
+                pField->DoFlagClick( mouseGridpos );
+            }
+            
+            if(pField->Done())
+            {
+                IsWin = true;
             }
         }
-        else if(IsMouseButtonPressed(MOUSE_BUTTON_RIGHT))
+        else
         {
-            Vec2 mouseGridpos = mineFeild.ScreenToGrid( {GetMouseX(), GetMouseY()} );
-            mineFeild.DoFlagClick( mouseGridpos );
-        }
-        
-        if(mineFeild.Done())
-        {
-            IsWin = true;
+            if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+            {
+                DestroyFeild();
+                state = State::Menu;
+                IsGameOver = false;
+                IsWin = false;
+            }
         }
     }
+    else
+    {
+        Vec2 mousePos = { GetMouseX(), GetMouseY() };
+        bool clickLeft = false;
+        if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+        {
+            clickLeft = true;
+        }
+        SelectMenu::Size type = menu.ProcessSelect(mousePos, clickLeft);
+        switch (type)
+        {
+        case SelectMenu::Size::Small:
+            CreateFeild( 6, 6, 6 );
+            state = State::Game;
+            break;
+        case SelectMenu::Size::Medium:
+            CreateFeild( 10, 10, 10 );
+            state = State::Game;
+            break;
+        case SelectMenu::Size::Large:
+            CreateFeild( 15, 15, 15 );
+            state = State::Game;
+            break;
+        default:
+            break;
+        }
+    }
+}
+void Game::CreateFeild(const int width, const int height, const int nBooms)
+{
+    assert( pField == nullptr );
+    pField = new MineField{ width, height, nBooms };
+}
+void Game::DestroyFeild()
+{
+    pField->FreeResource();
+    delete pField;
+    pField = nullptr;
 }
 void Game::Draw()
 {
     ClearBackground(BLACK);
-    mineFeild.Draw();
-    if(IsGameOver)
+    if(state == State::Game)
     {
-        DrawTextCenter("Game Over", 50);
+        pField->Draw();
+        if(IsGameOver)
+        {
+            DrawTextCenter("Game Over", 50);
+        }
+        else if(IsWin)
+        {
+            DrawTextCenter("Win", 50);
+        }
     }
-    else if(IsWin)
+    else
     {
-        DrawTextCenter("Win", 50);
+        menu.Draw();
     }
 }
 void Game::DrawTextCenter(const char* title, int fontSize)
